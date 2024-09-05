@@ -1,22 +1,28 @@
-﻿# createrdsfsmbuser.ps1
+# createrdsfsmbuser.ps1
 # version 20240905.01
 # Author Chris Hawkins
+
+Clear 
 
 #Define value
 $newusername = $env:COMPUTERNAME + "-smb"
 $newuserpassword = (Read-Host -AsSecureString "Account $newuser password")
 
-Write-Host "Is the hostname '$env:computername' set correctly to the service tag? Press y to confirm user account or n to cancel?"
+Write-Host " Create user $newusername ?`n`nPress y to confirm or any other key to cancel?"
     $reply = Read-Host
     if ($reply.ToLower() -eq 'y' -or $reply.ToLower() -eq 'yes') {
-        write-host "continyue"
-        continue
+        #continue
     }
     else {
-        Write-Host "exit"
-        exit
+        Write-Host "Cencelled."
+        continue
     }
 
+# Start prcess
+Write-Host "Creating new smb user $newusername"
+Write-Host "`n"
+
+# Splatting data
 $NewUser = @{
     Name                     = $newusername
     Password                 = $newuserpassword
@@ -27,12 +33,6 @@ $NewUser = @{
     UserMayNotChangePassword = $true
     }
 
-# Start prcess
-Clear
-Write-Host "`n"
-Write-Host "Adding new user $newusername"
-Write-Host "----------------------------"
-Write-Host "`n"
+## Add new user
 
-# Add new user
 New-LocalUser @NewUser
