@@ -1,6 +1,7 @@
 # createrdsfsmbuser.ps1
 # version 20240905.01
 # Author Chris Hawkins
+# Requires -Version 5
 
 Clear 
 
