@@ -26,5 +26,5 @@ $NewUser = @{
 ## Add new user
 New-LocalUser @NewUser -confirm
 
-## Add to USers Group
+## Add to Users Group
 Add-LocalGroupMember -Group "Users" -Member $newusername -confirm
