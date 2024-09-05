@@ -4,22 +4,12 @@
 
 Clear 
 
-#Define value
+# Define values
 $newusername = $env:COMPUTERNAME + "-smb"
-$newuserpassword = (Read-Host -AsSecureString "Account $newuser password")
-
-Write-Host " Create user $newusername ?`n`nPress y to confirm or any other key to cancel?"
-    $reply = Read-Host
-    if ($reply.ToLower() -eq 'y' -or $reply.ToLower() -eq 'yes') {
-        #continue
-    }
-    else {
-        Write-Host "Cencelled."
-        continue
-    }
+$newuserpassword = (Read-Host -AsSecureString "Account $newusername password")
 
 # Start prcess
-Write-Host "Creating new smb user $newusername"
+Write-Host "Creating new RDSF smb user $newusername"
 Write-Host "`n"
 
 # Splatting data
@@ -34,5 +24,7 @@ $NewUser = @{
     }
 
 ## Add new user
+New-LocalUser @NewUser -confirm
 
-New-LocalUser @NewUser
+## Add to USers Group
+Add-LocalGroupMember -Group "Users" -Member $newusername -confirm
