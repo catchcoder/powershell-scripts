@@ -16,7 +16,7 @@ Write-Host "`n"
 $NewUser = @{
     Name                     = $newusername
     Password                 = $newuserpassword
-    FullName                 = $AccountFullName = "RDSF SMB Local User"
+    FullName                 = $AccountFullName = "RDSF Local User $newusername"
     Description              = $AccountDescription = "Local User Account for RDSF-Gateway"
     AccountNeverExpires      = $true
     PasswordNeverExpires     = $true
