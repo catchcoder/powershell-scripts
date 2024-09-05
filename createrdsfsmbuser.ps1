@@ -8,7 +8,7 @@ Clear
 $newusername = $env:COMPUTERNAME + "-smb"
 $newuserpassword = (Read-Host -AsSecureString "Account $newusername password")
 
-# Start prcess
+# Start process
 Write-Host "Creating new RDSF smb user $newusername"
 Write-Host "`n"
 
