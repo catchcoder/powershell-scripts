@@ -1,4 +1,4 @@
-# Create Local Windows User for RDSF Gateway connection
+# Create a Local Windows User for the RDSF Gateway connection
 
 ## Rename hostname to match service tag
 
