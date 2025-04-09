@@ -2,7 +2,6 @@
 # version 20240905.01
 # Author Chris Hawkins
 
-Clear
 
 # Get current and enter new hostname
 Write-Host "This computers hostname is: $env:COMPUTERNAME "

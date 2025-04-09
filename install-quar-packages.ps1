@@ -1,0 +1,80 @@
+<#
+.SYNOPSIS
+    Installs common remote access and utility packages using winget.
+.DESCRIPTION
+    This script installs various packages including 7zip, PuTTY, WinSCP, TightVNC, 
+    Xming, and X2go client. Requires administrative privileges and PowerShell 5+.
+.NOTES
+    Version: 1.00
+    Author: Chris Hawkins and AI Assistant
+    Date: 2024
+#>
+
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5) {
+    Write-Error "This script requires PowerShell 5 or later. Current version: $($PSVersionTable.PSVersion)" -ErrorAction Stop
+}
+
+
+# Check if the script is running as Administrator
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Error "This script must be run as an Administrator." -ErrorAction Stop
+}
+
+# Set execution policy
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted -Force
+
+# Check and install NuGet provider
+if (-not (Get-PackageProvider -ListAvailable -Name NuGet -ErrorAction SilentlyContinue | Where-Object Version -ge '2.8.5.201')) {
+    Write-Host "Installing NuGet provider..."
+    try {
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    }
+    catch {
+        Write-Error "Failed to install NuGet provider: $_" -ErrorAction Stop
+    }
+}
+
+# Check if winget is installed
+if (-not (Get-Command "winget" -ErrorAction SilentlyContinue)) {
+    Write-Host "Winget not found. Installing winget..."
+    try {
+        Install-Script -Name winget-install -Force
+        winget-install
+    }
+    catch {
+        Write-Error "Failed to install winget: $_" -ErrorAction Stop
+    }
+}
+
+
+# Accept the MSSTORE terms of transaction
+Start-Process "powershell" -ArgumentList "winget source update --accept-source-agreements" -NoNewWindow -Wait
+
+# Set the geographic region (replace 'US' with your 2-letter region code)
+$region = "GB"
+Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value ([System.Globalization.RegionInfo]::CurrentRegion.GeoId)
+
+
+# Array of packages to install
+$packages = @(
+    "7zip.7zip",
+    "Pu.putty",
+    "winscp.winscp",
+    "GlavSoft.TightVNC",
+    "Xming.Xming",
+    "X2go.x2goclient"
+)
+
+# Install packages
+foreach ($package in $packages) {
+    Write-Host "Installing $package..."
+    try {
+        winget install -e --id $package --accept-source-agreements --accept-package-agreements
+    }
+    catch {
+        Write-Warning "Failed to install $package $_"
+    }
+}
+
+Write-Host "Installation complete!"
