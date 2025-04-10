@@ -59,8 +59,8 @@ Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value 
 # Array of packages to install
 $packages = @(
     "7zip.7zip",
-    "Pu.putty",
-    "winscp.winscp",
+    "PuTTY.PuTTY",
+    "WinSCP.WinSCP",
     "GlavSoft.TightVNC",
     "Xming.Xming",
     "X2go.x2goclient"
@@ -70,7 +70,19 @@ $packages = @(
 foreach ($package in $packages) {
     Write-Host "Installing $package..."
     try {
-        winget install -e --id $package --accept-source-agreements --accept-package-agreements
+        # First, add this hashtable before the foreach loop:
+        $customParams = @{
+            '7zip.7zip' = '-e'
+            'PuTTY.PuTTY' = '-e'
+            'WinSCP.WinSCP' = '-e'
+            'GlavSoft.TightVNC' = ' --custom ADDLOCAL=Viewer'
+            'Xming.Xming' = '-e'
+            'X2go.x2goclient' = '-e'
+        }
+
+        # Then replace the installation line with:
+        Write-Host winget install  --id $package $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
+        winget install  --id $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
     }
     catch {
         Write-Warning "Failed to install $package $_"
