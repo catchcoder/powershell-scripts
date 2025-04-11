@@ -75,13 +75,13 @@ foreach ($package in $packages) {
             '7zip.7zip' = '-e'
             'PuTTY.PuTTY' = '-e'
             'WinSCP.WinSCP' = '-e'
-            'GlavSoft.TightVNC' = ' --custom ADDLOCAL=Viewer'
+            'GlavSoft.TightVNC' = '-e --custom ADDLOCAL'
             'Xming.Xming' = '-e'
             'X2go.x2goclient' = '-e'
         }
 
         # Then replace the installation line with:
-        Write-Host winget install  --id $package $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
+        Write-Host winget install  --id $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
         winget install  --id $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
     }
     catch {
