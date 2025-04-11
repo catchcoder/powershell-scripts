@@ -5,16 +5,15 @@
     This script installs various packages including 7zip, PuTTY, WinSCP, TightVNC, 
     Xming, and X2go client. Requires administrative privileges and PowerShell 5+.
 .NOTES
-    Version: 1.00
+    Version: 1.01
     Author: Chris Hawkins and AI Assistant
-    Date: 2024
+    Date: 2025
 #>
 
 # Check PowerShell version
 if ($PSVersionTable.PSVersion.Major -lt 5) {
     Write-Error "This script requires PowerShell 5 or later. Current version: $($PSVersionTable.PSVersion)" -ErrorAction Stop
 }
-
 
 # Check if the script is running as Administrator
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
@@ -47,7 +46,6 @@ if (-not (Get-Command "winget" -ErrorAction SilentlyContinue)) {
     }
 }
 
-
 # Accept the MSSTORE terms of transaction
 Start-Process "powershell" -ArgumentList "winget source update --accept-source-agreements" -NoNewWindow -Wait
 
@@ -56,27 +54,23 @@ $region = "GB"
 Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value ([System.Globalization.RegionInfo]::CurrentRegion.GeoId)
 
 # First, add this hashtable before the foreach loop:
-$customParams = @{
+$packagesAndCustomParams = @{
     '7zip.7zip' = '-e'
     'PuTTY.PuTTY' = '-e'
     'WinSCP.WinSCP' = '-e'
-    'GlavSoft.TightVNC' = '-e --custom ADDLOCAL=Viewer'
+    'GlavSoft.TightVNC' = '-e --custom ADDLOCAL=Viewer'  # VNC Viewer ONLY, do not install VNCserver
     'Xming.Xming' = '-e'
     'X2go.x2goclient' = '-e'
 }
 $defaultSwitches = "--accept-source-agreements --accept-package-agreements --verbose"
 
 # Install packages
-
-foreach ($package in $customParams.Keys) {
-    $params = $customParams[$package]
+foreach ($package in $packagesAndCustomParams.Keys) {
+    $params = $packagesAndCustomParams[$package]
     $fullCommand = "winget install $package $params $defaultSwitches"
     Write-Host "Installing $package..."
     try {
 
-
-        # Then replace the installation line with:
-        write-host $fullCommand
         Invoke-Expression $fullcommand 
     }
     catch {
