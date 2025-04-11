@@ -69,8 +69,8 @@ $defaultSwitches = "--accept-source-agreements --accept-package-agreements --ver
 
 # Install packages
 foreach ($package in $packagesAndCustomParams.Keys) {
-    $params = $packagesAndCustomParams[$package]
-    $fullCommand = "winget install $package $params $defaultSwitches"
+    $params = $packagesAndCustomParams[$package]
+    $fullCommand = "winget install --id $package $params $defaultSwitches"
     Write-Host "Installing $package..."
     try {
 
