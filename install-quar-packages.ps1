@@ -62,6 +62,9 @@ $packagesAndCustomParams = @{
     'Xming.Xming' = '-e'
     'X2go.x2goclient' = '-e'
 }
+
+# Define the default switches for winget install
+# These switches are common for all installations
 $defaultSwitches = "--accept-source-agreements --accept-package-agreements --verbose"
 
 # Install packages
