@@ -20,6 +20,12 @@
 				},				
 				{
 					"PackageIdentifier" : "WinSCP.WinSCP"
+				},				
+				{
+					"PackageIdentifier" : "Xming.Xming"
+				},				
+				{
+					"PackageIdentifier" : "X2go.x2goclient"
 				}
 			],
 			"SourceDetails" : 
