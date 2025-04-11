@@ -55,34 +55,29 @@ Start-Process "powershell" -ArgumentList "winget source update --accept-source-a
 $region = "GB"
 Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value ([System.Globalization.RegionInfo]::CurrentRegion.GeoId)
 
-
-# Array of packages to install
-$packages = @(
-    "7zip.7zip",
-    "PuTTY.PuTTY",
-    "WinSCP.WinSCP",
-    "GlavSoft.TightVNC",
-    "Xming.Xming",
-    "X2go.x2goclient"
-)
+# First, add this hashtable before the foreach loop:
+$customParams = @{
+    '7zip.7zip' = '-e'
+    'PuTTY.PuTTY' = '-e'
+    'WinSCP.WinSCP' = '-e'
+    'GlavSoft.TightVNC' = '-e --custom ADDLOCAL=Viewer'
+    'Xming.Xming' = '-e'
+    'X2go.x2goclient' = '-e'
+}
+$defaultSwitches = "--accept-source-agreements --accept-package-agreements --verbose"
 
 # Install packages
-foreach ($package in $packages) {
+
+foreach ($package in $customParams.Keys) {
+    $params = $customParams[$package]
+    $fullCommand = "winget install $package $params $defaultSwitches"
     Write-Host "Installing $package..."
     try {
-        # First, add this hashtable before the foreach loop:
-        $customParams = @{
-            '7zip.7zip' = '-e'
-            'PuTTY.PuTTY' = '-e'
-            'WinSCP.WinSCP' = '-e'
-            'GlavSoft.TightVNC' = '-e --custom ADDLOCAL'
-            'Xming.Xming' = '-e'
-            'X2go.x2goclient' = '-e'
-        }
+
 
         # Then replace the installation line with:
-        Write-Host winget install  --id $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
-        winget install  --id $package $($customParams[$package]) --accept-source-agreements --accept-package-agreements 
+        write-host $fullCommand
+        Invoke-Expression $fullcommand 
     }
     catch {
         Write-Warning "Failed to install $package $_"
