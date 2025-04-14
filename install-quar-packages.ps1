@@ -5,10 +5,14 @@
     This script installs various packages including 7zip, PuTTY, WinSCP, TightVNC, 
     Xming, and X2go client. Requires administrative privileges and PowerShell 5+.
 .NOTES
-    Version: 1.01
+    Version: 1.02
     Author: Chris Hawkins and AI Assistant
     Date: 2025
 #>
+# Set up logging
+$logFile = Join-Path $env:TEMP "quar-packages-install-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+Start-Transcript -Path $logFile -Append
+Write-Host "Log file created at: $logFile"
 
 # Check PowerShell version
 if ($PSVersionTable.PSVersion.Major -lt 5) {
