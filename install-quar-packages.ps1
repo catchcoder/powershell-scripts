@@ -53,7 +53,8 @@ Start-Process "powershell" -ArgumentList "winget source update --accept-source-a
 $region = "GB"
 Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value ([System.Globalization.RegionInfo]::CurrentRegion.GeoId)
 
-# First, add this hashtable before the foreach loop:
+# hashtable for packages and their custom parameters
+# The keys are the package IDs and the values are the custom parameters for installation:
 $packagesAndCustomParams = @{
     '7zip.7zip' = '-e'
     'PuTTY.PuTTY' = '-e'
