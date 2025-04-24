@@ -1,4 +1,4 @@
-# Powershell scripts 
+# Powershell scripts
 
 ## Create a Local Windows User for the RDSF Gateway connection
 

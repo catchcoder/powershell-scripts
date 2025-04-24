@@ -62,7 +62,7 @@ Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value 
 $packagesAndCustomParams = @{
     '7zip.7zip' = '-e'
     'PuTTY.PuTTY' = '-e'
-    'WinSCP.WinSCP' = '-e'
+    'WinSCP.WinSCP'     = '-e --custom /ALLUSERS' # WinSCP All Users, do not install WinSCP portable
     'GlavSoft.TightVNC' = '-e --custom ADDLOCAL=Viewer'  # VNC Viewer ONLY, do not install VNCserver
     'Xming.Xming' = '-e'
     'X2go.x2goclient' = '-e'
