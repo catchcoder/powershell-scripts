@@ -87,6 +87,7 @@ foreach ($package in $packagesAndCustomParams.Keys) {
     }
 }
 
+# variables for OxCal installation
 $OXCAL_URI_DOWNLOAD = "https://c14.arch.ox.ac.uk/OxCalDistribution.zip"
 $OXCAL_INSTALL_DIR = "C:\Program Files"
 
