@@ -119,6 +119,20 @@ if (-not (Test-Path -Path $oxcalUserDir)) {
     Write-Host "Created OxCal directory at $oxcalUserDir"
 }
 
+# Create OxCal folder on C: drive
+$oxcalPath = "C:\oxcal"
+if (-not (Test-Path -Path $oxcalPath)) {
+    New-Item -Path $oxcalPath -ItemType Directory -Force
+}
+
+# Set permissions for all users to read and write
+$acl = Get-Acl $oxcalPath
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("Users","Modify","ContainerInherit,ObjectInherit","None","Allow")
+$acl.SetAccessRule($accessRule)
+Set-Acl $oxcalPath $acl
+
+Write-Host "Created OxCal directory at $oxcalPath with read/write permissions for all users"
+
 # Create desktop shortcut for OxCal
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\OxCal.lnk")
