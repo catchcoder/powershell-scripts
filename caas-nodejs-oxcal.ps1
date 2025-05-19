@@ -4,7 +4,7 @@
 .DESCRIPTION
     This script installs various packages including 7zip and NodeJS. Requires administrative privileges and PowerShell 5+.
 .NOTES
-    Version: 1.01
+    Version: 1.03
     Author: Chris Hawkins and AI Assistant
     Date: 2025
 #>
@@ -55,6 +55,11 @@ Start-Process "powershell" -ArgumentList "winget source update --accept-source-a
 # Set the geographic region (replace 'US' with your 2-letter region code)
 #$region = "GB"
 Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value ([System.Globalization.RegionInfo]::CurrentRegion.GeoId)
+
+# System check complete notification
+Write-Host "`n=== System Check Complete ===" -ForegroundColor Green
+Write-Host "All prerequisites verified. Starting OxCal installation..." -ForegroundColor Green
+Write-Host "==============================`n"
 
 # hashtable for packages and their custom parameters
 # The keys are the package IDs and the values are the custom parameters for installation:
@@ -111,6 +116,14 @@ catch {
 # Clean up
 Remove-Item "$env:TEMP\OxCalDistribution.zip" -Force
 
+# Verify OxCal installation
+$nodeServerPath = "C:\Program Files\OxCal\NodeServer.js"
+if (-not (Test-Path -Path $nodeServerPath)) {
+    Write-Error "OxCal installation failed: NodeServer.js not found at $nodeServerPath" -ErrorAction Stop
+}
+Write-Host "OxCal installation verified: NodeServer.js found at $nodeServerPath"
+
+
 # Create OxCal folder in user's home directory, this is where all data will be stored
 # This is the location where the OxCal application will look for its data files
 $oxcalUserDir = Join-Path $env:USERPROFILE "OxCal"
@@ -135,18 +148,45 @@ Write-Host "Created OxCal directory at $oxcalPath with read/write permissions fo
 
 # Create desktop shortcut for OxCal
 $WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\OxCal.lnk")
+$Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\OxCal.lnk")
 $Shortcut.TargetPath = "C:\Program Files\OxCal\OxCal.bat"
 $Shortcut.WorkingDirectory = "C:\Program Files\OxCal"
 $Shortcut.Description = "OxCal Application"
 $Shortcut.Save()
-Write-Host "Desktop shortcut created for OxCal"
+Write-Host "Desktop shortcut created for OxCal in Public desktop"
+
+# Create desktop shortcut for OxCal Web Interface in Public desktop
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\OxCal Web.lnk")
+$Shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+$Shortcut.Arguments = "http://localhost:8080"
+$Shortcut.Description = "OxCal Web Interface"
+$Shortcut.Save()
+Write-host "Desktop shortcut created for OxCal Web Interface in Public desktop"
 
 # Launch Edge browser with OxCal local server
 Start-Process "msedge" -ArgumentList "http://localhost:8080"
 
 
 Write-Host "Installation complete!"
+
+# Remove Internet Explorer from Windows Server 2019
+Write-Host "Removing Internet Explorer..."
+try {
+    Disable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-amd64" -NoRestart
+    Write-Host "Internet Explorer has been removed successfully"
+} catch {
+    Write-Warning "Failed to remove Internet Explorer: $_"
+}
+
+# Note: The removal of Internet Explorer may require a system restart to take effect.
+# Notify user about the need for a restart
+Write-Warning "`nA system restart is required to completely remove Internet Explorer. Please restart your system manually."
+
+# Notify user about the installation completion
+Write-Host "`n=== Installation is Complete ===" -ForegroundColor Green
+Write-Host "       OxCal installed" -ForegroundColor Green
+Write-Host "================================`n" -ForegroundColor Green
 
 # Stop logging
 Stop-Transcript
