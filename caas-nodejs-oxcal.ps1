@@ -59,7 +59,7 @@ Set-ItemProperty -Path "HKCU:\Control Panel\International" -Name "GeoID" -Value 
 # System check complete notification
 Write-Host "`n=== System Check Complete ===" -ForegroundColor Green
 Write-Host "All prerequisites verified. Starting OxCal installation..." -ForegroundColor Green
-Write-Host "==============================`n"
+Write-Host "=============================`n" -ForegroundColor Green
 
 # hashtable for packages and their custom parameters
 # The keys are the package IDs and the values are the custom parameters for installation:
