@@ -88,7 +88,14 @@ Write-Host "Modifying password policy..." -ForegroundColor Yellow
 try {
     # Set maximum password age to 0 (never expire)
     net accounts /maxpwage:unlimited
+    # Set minimum password age to 0 (immediate change allowed)
+    net accounts /minpwage:0
+    # Set minimum password length to 0 (no minimum)
+    net accounts /minpwlen:0
+    # Set password history to 0 (no history)
+    net accounts /uniquepw:0
     
+    # Set password complexity to disabled
     # Disable password complexity requirements through Security Policy
     secedit /export /cfg C:\secpol.cfg
     (Get-Content C:\secpol.cfg).Replace("PasswordComplexity = 1", "PasswordComplexity = 0") | Out-File C:\secpol.cfg
