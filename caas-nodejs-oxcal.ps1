@@ -5,7 +5,7 @@
     This script installs various packages including 7zip and NodeJS. Requires administrative privileges and PowerShell 5+.
 .NOTES
     Version: 1.03
-    Author: Chris Hawkins and AI Assistant
+    Author: Chris Hawkins and Copilot AI Assistant
     Date: 2025
 #>
 # Set up logging
@@ -65,8 +65,12 @@ Write-Host "=============================`n" -ForegroundColor Green
 # The keys are the package IDs and the values are the custom parameters for installation:
 $packagesAndCustomParams = @{
     '7zip.7zip'         = '-e'
-    'OpenJS.NodeJS'       = '-e'
-
+    'OpenJS.NodeJS'      = '-e'
+    'RProject.R'         = '-e'
+    'RStudio.RStudio'    = '-e'
+    'RProject.R'                 = '-e --scope machine'
+    'RStudio.RStudio'            = '-e --scope machine'
+    'Microsoft.VisualStudioCode' = '-e --scope machine' 
 }
 
 # Define the default switches for winget install
