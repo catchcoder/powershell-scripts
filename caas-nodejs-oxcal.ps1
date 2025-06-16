@@ -66,8 +66,6 @@ Write-Host "=============================`n" -ForegroundColor Green
 $packagesAndCustomParams = @{
     '7zip.7zip'         = '-e'
     'OpenJS.NodeJS'      = '-e'
-    'RProject.R'         = '-e'
-    'RStudio.RStudio'    = '-e'
     'RProject.R'                 = '-e --scope machine'
     'RStudio.RStudio'            = '-e --scope machine'
     'Microsoft.VisualStudioCode' = '-e --scope machine' 
