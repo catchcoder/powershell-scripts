@@ -1,13 +1,22 @@
+#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Installs NodeJS and 7zip utility using winget for OxCal (https://c14.arch.ox.ac.uk/oxcal.html) installation.
+    Installs NodeJS and OxCal (https://c14.arch.ox.ac.uk/oxcal.html).
 .DESCRIPTION
-    This script installs various packages including 7zip and NodeJS. Requires administrative privileges and PowerShell 5+.
+    This script automates the installation and setup of OxCal and its dependencies on Windows. 
+    It installs NodeJS, 7zip, R, RStudio, Visual Studio Code, and Firefox ESR using winget, 
+    configures directories and permissions, downloads and extracts OxCal, creates configuration files and desktop shortcuts,
+    and removes Internet Explorer. 
+    Requires administrative privileges and PowerShell 5 or later.
 .NOTES
-    Version: 1.03
+    Version: 1.04
     Author: Chris Hawkins and Copilot AI Assistant
     Date: 2025
 #>
+# Requires -Version 5.0
+# Requires -RunAsAdministrator  
+
+
 # Set up logging
 $logFile = Join-Path $env:TEMP "oxcal-packages-install-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
 Start-Transcript -Path $logFile -Append
@@ -120,21 +129,24 @@ catch {
 # Clean up
 Remove-Item "$env:TEMP\OxCalDistribution.zip" -Force
 
+# Set permissions for Administrators to modify the OxCal installation directory
+$oxcalInstallSubDir = Join-Path $OXCAL_INSTALL_DIR "oxcal"
+if (Test-Path $oxcalInstallSubDir) {
+    $acl = Get-Acl $oxcalInstallSubDir
+    $adminRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+        "Administrators", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow"
+    )
+    $acl.SetAccessRule($adminRule)
+    Set-Acl $oxcalInstallSubDir $acl
+    Write-Host "Set Modify permissions for Administrators on $oxcalInstallSubDir"
+}
+
 # Verify OxCal installation
 $nodeServerPath = "C:\Program Files\OxCal\NodeServer.js"
 if (-not (Test-Path -Path $nodeServerPath)) {
     Write-Error "OxCal installation failed: NodeServer.js not found at $nodeServerPath" -ErrorAction Stop
 }
 Write-Host "OxCal installation verified: NodeServer.js found at $nodeServerPath"
-
-
-# Create OxCal folder in user's home directory, this is where all data will be stored
-# This is the location where the OxCal application will look for its data files
-$oxcalUserDir = Join-Path $env:USERPROFILE "OxCal"
-if (-not (Test-Path -Path $oxcalUserDir)) {
-    New-Item -Path $oxcalUserDir -ItemType Directory -Force
-    Write-Host "Created OxCal directory at $oxcalUserDir"
-}
 
 # Create OxCal folder on C: drive
 $oxcalPath = "C:\OxCal"
@@ -160,7 +172,7 @@ Set-Acl $oxcalPath $acl
 $setupJsonPath = Join-Path -Path $OXCAL_INSTALL_DIR -ChildPath "oxcal\setup.json"
 $setupJsonContent = @{
     port = "8080"
-    home = "C:\Data"
+    home = "C:\OxCal"
     web = "C:\Program Files\OxCal"
     oxcal = "C:\Program Files\OxCal\bin\OxCalWin.exe"
     texdir = ""
@@ -174,7 +186,7 @@ if (-not (Test-Path $setupJsonDir)) {
     New-Item -Path $setupJsonDir -ItemType Directory -Force | Out-Null
 }
 
-Set-Content -Path $setupJsonPath -Value $setupJsonContent -Encoding UTF8
+Set-Content -Path $setupJsonPath -Value $setupJsonContent 
 Write-Host "Created setup.json at $setupJsonPath"
 
 Write-Host "Created OxCal directory at $oxcalPath with read/write permissions for all users"
@@ -215,6 +227,9 @@ try {
 # Note: The removal of Internet Explorer may require a system restart to take effect.
 # Notify user about the need for a restart
 Write-Warning "`nA system restart is required to completely remove Internet Explorer. Please restart your system manually."
+
+# Set execution policy
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Restricted -Force
 
 # Notify user about the installation completion
 Write-Host "`n=== Installation is Complete ===" -ForegroundColor Green
