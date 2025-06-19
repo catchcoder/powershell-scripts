@@ -1,4 +1,3 @@
-#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
     Installs NodeJS and OxCal (https://c14.arch.ox.ac.uk/oxcal.html).
