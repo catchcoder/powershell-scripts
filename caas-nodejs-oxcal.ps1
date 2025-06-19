@@ -64,11 +64,12 @@ Write-Host "=============================`n" -ForegroundColor Green
 # hashtable for packages and their custom parameters
 # The keys are the package IDs and the values are the custom parameters for installation:
 $packagesAndCustomParams = @{
-    '7zip.7zip'         = '-e'
-    'OpenJS.NodeJS'      = '-e'
-    'RProject.R'                 = '-e --scope machine'
-    'RStudio.RStudio'            = '-e --scope machine'
-    'Microsoft.VisualStudioCode' = '-e --scope machine' 
+    '7zip.7zip'                  = '-e'
+    'OpenJS.NodeJS'              = '-e'
+    'RProject.R'                 = '-e'
+    'Posit.RStudio'              = '-e'
+    'Microsoft.VisualStudioCode' = '-e --scope machine'
+    'Mozilla.Firefox.ESR.uk'     = '-e'
 }
 
 # Define the default switches for winget install
@@ -136,9 +137,17 @@ if (-not (Test-Path -Path $oxcalUserDir)) {
 }
 
 # Create OxCal folder on C: drive
-$oxcalPath = "C:\oxcal"
+$oxcalPath = "C:\OxCal"
 if (-not (Test-Path -Path $oxcalPath)) {
     New-Item -Path $oxcalPath -ItemType Directory -Force
+}
+
+# Create a folder inside C:\oxcal named after the current user's profile folder name
+$userFolderName = Split-Path $env:USERPROFILE -Leaf
+$userOxcalSubDir = Join-Path $oxcalPath $userFolderName
+if (-not (Test-Path -Path $userOxcalSubDir)) {
+    New-Item -Path $userOxcalSubDir -ItemType Directory -Force
+    Write-Host "Created user-specific OxCal directory at $userOxcalSubDir"
 }
 
 # Set permissions for all users to read and write
@@ -146,6 +155,27 @@ $acl = Get-Acl $oxcalPath
 $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("Users","Modify","ContainerInherit,ObjectInherit","None","Allow")
 $acl.SetAccessRule($accessRule)
 Set-Acl $oxcalPath $acl
+
+# Create setup.json in the "$OXCAL_INSTALL_DIR\oxcal" folder
+$setupJsonPath = Join-Path -Path $OXCAL_INSTALL_DIR -ChildPath "oxcal\setup.json"
+$setupJsonContent = @{
+    port = "8080"
+    home = "C:\Data"
+    web = "C:\Program Files\OxCal"
+    oxcal = "C:\Program Files\OxCal\bin\OxCalWin.exe"
+    texdir = ""
+    rasterizer = ""
+    ok = $true
+} | ConvertTo-Json -Compress
+
+# Ensure the directory exists
+$setupJsonDir = Split-Path $setupJsonPath -Parent
+if (-not (Test-Path $setupJsonDir)) {
+    New-Item -Path $setupJsonDir -ItemType Directory -Force | Out-Null
+}
+
+Set-Content -Path $setupJsonPath -Value $setupJsonContent -Encoding UTF8
+Write-Host "Created setup.json at $setupJsonPath"
 
 Write-Host "Created OxCal directory at $oxcalPath with read/write permissions for all users"
 
@@ -161,17 +191,17 @@ Write-Host "Desktop shortcut created for OxCal in Public desktop"
 # Create desktop shortcut for OxCal Web Interface in Public desktop
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\OxCal Web.lnk")
-$Shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+$Shortcut.TargetPath = "C:\Program Files\Mozilla Firefox\firefox.exe"
 $Shortcut.Arguments = "http://localhost:8080"
 $Shortcut.Description = "OxCal Web Interface"
 $Shortcut.Save()
-Write-host "Desktop shortcut created for OxCal Web Interface in Public desktop"
+Write-Host "Desktop shortcut created for OxCal Web Interface in Public desktop"
 
-# Launch Edge browser with OxCal local server
-Start-Process "msedge" -ArgumentList "http://localhost:8080"
-
-
-Write-Host "Installation complete!"
+#
+# Notify user about the installation completion
+Write-Host "`n=== OxCal Installation Complete ===" -ForegroundColor Green
+Write-Host "OxCal has been installed successfully and is ready to use." -ForegroundColor Green  
+Write-Host "You can access the OxCal Web Interface at http://localhost:8080" -ForegroundColor Green
 
 # Remove Internet Explorer from Windows Server 2019
 Write-Host "Removing Internet Explorer..."
