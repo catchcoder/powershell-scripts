@@ -3,7 +3,7 @@
     Installs NodeJS and OxCal (https://c14.arch.ox.ac.uk/oxcal.html).
 .DESCRIPTION
     This script automates the installation and setup of OxCal and its dependencies on Windows. 
-    It installs NodeJS, 7zip, R, RStudio, Visual Studio Code, and Firefox ESR using winget, 
+    Using WINGET to installs NodeJS, 7zip, R, RStudio, Visual Studio Code, and Firefox ESR using winget, 
     configures directories and permissions, downloads and extracts OxCal, creates configuration files and desktop shortcuts,
     and removes Internet Explorer. 
     Requires administrative privileges and PowerShell 5 or later.
