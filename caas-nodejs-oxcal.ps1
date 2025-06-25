@@ -9,7 +9,7 @@
     Requires administrative privileges and PowerShell 5 or later.
 .NOTES
     Version: 1.04
-    Author: Chris Hawkins and Copilot AI Assistant
+    Author: Chris Hawkins - Specialist Academic Applications Team
     Date: 2025
 #>
 # Requires -Version 5.0
