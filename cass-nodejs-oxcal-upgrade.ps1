@@ -55,7 +55,7 @@ if (-not (Get-Command "winget" -ErrorAction SilentlyContinue)) {
 }
 
 # Accept the MSSTORE terms of transaction
-Start-Process "powershell" -ArgumentList "winget source update --accept-source-agreements" -NoNewWindow -Wait
+Start-Process "powershell" -ArgumentList "winget source update" -NoNewWindow -Wait
 
 # Set the geographic region (replace 'US' with your 2-letter region code)
 $region = "GB"
