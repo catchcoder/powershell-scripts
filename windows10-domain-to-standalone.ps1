@@ -22,7 +22,7 @@
     - Displays next steps for the user, including BitLocker key management and network changes.
 
 .USAGE
-    1. Run this script in an elevated PowerShell session (Run as Administrator).
+    1. Run this script in an elevated PowerShell 64bit session (Run as Administrator).
     2. Ensure you have made necessary changes to the script variables, such as the Windows MAK key and passwords for local accounts.
     3. Follow the prompts to confirm the operation and provide necessary credentials.
     4. Review the log file generated in the TEMP directory for details of the actions performed.
@@ -36,7 +36,7 @@
     - Some actions (such as domain removal and BitLocker key export) may require additional permissions.
     - Test this script in a non-production environment before deploying widely.
     - Author: Chris Hawkins - Academic Applications Team
-    - Version: 1.0.4
+    - Version: 1.0.5
     - Date: 3/7/2025
 #>
 # Requires elevation (Run as Administrator)
@@ -57,6 +57,12 @@ $script:adminPassword = "Password1234!" # Change this to your desired password
 $script:officeDownloadUrl = "https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_18827-20140.exe"
 # Define the LibreOffice download URL
 $script:libreOfficeUrl = "https://download.documentfoundation.org/libreoffice/stable/25.2.4/win/x86_64/LibreOffice_25.2.4_Win_x86-64.msi"
+
+if (-not [Environment]::Is64BitProcess) {
+    Write-Host "This script must be run in a 64-bit PowerShell environment." -ForegroundColor Red
+    exit
+}
+
 
 function Confirm-StandaloneConversion {
     Write-Host "This script will convert the current machine to a standalone system." -ForegroundColor Yellow
@@ -314,14 +320,20 @@ function Add-DefaultUsersToUsersGroup {
     Write-Host "Adding default system accounts to 'Users' group..." -ForegroundColor Yellow
     try {
         $groupMembers = Get-LocalGroupMember -Group "Users" | Select-Object -ExpandProperty Name
-
         if (-not ($groupMembers -contains "NT AUTHORITY\INTERACTIVE")) {
+            Write-Host "Adding 'NT AUTHORITY\INTERACTIVE' to 'Users' group..." -ForegroundColor Yellow
+            #Invoke-Expression 'net localgroup "Users" "NT AUTHORITY\INTERACTIVE" /add'
+            
             Add-LocalGroupMember -Group "Users" -Member "NT AUTHORITY\INTERACTIVE"
         } else {
             Write-Host "'NT AUTHORITY\INTERACTIVE' is already a member of 'Users' group." -ForegroundColor Yellow
         }
 
         if (-not ($groupMembers -contains "NT AUTHORITY\Authenticated Users")) {
+            write-Host "Adding 'NT AUTHORITY\Authenticated Users' to 'Users' group..." -ForegroundColor Yellow
+
+            #Invoke-Expression 'net localgroup "Users" "NT AUTHORITY\Authenticated Users" /add'
+
             Add-LocalGroupMember -Group "Users" -Member "NT AUTHORITY\Authenticated Users"
         } else {
             Write-Host "'NT AUTHORITY\Authenticated Users' is already a member of 'Users' group." -ForegroundColor Yellow
@@ -334,6 +346,29 @@ function Add-DefaultUsersToUsersGroup {
         else {
             Write-Host "Verification failed: One or both accounts not found in 'Users' group." -ForegroundColor Red
         }
+
+        # Add 'UOB\Domain Users' back to the local 'Users' group if it exists
+        try {
+            $groupMembers = Get-LocalGroupMember -Group "Users" | Select-Object -ExpandProperty Name
+            if (-not ($groupMembers -contains "UOB\Domain Users")) {
+                write-Host "Adding 'UOB\Domain Users' to 'Users' group..." -ForegroundColor Yellow
+
+                Add-LocalGroupMember -Group "Users" -Member "UOB\Domain Users" -ErrorAction Stop
+            } else {
+                Write-Host "'UOB\Domain Users' is already a member of 'Users' group." -ForegroundColor Yellow
+            }
+            # Check if 'UOB\Domain Users' was successfully added
+            $groupMembers = Get-LocalGroupMember -Group "Users" | Select-Object -ExpandProperty Name
+            if ($groupMembers -contains "UOB\Domain Users") {
+                Write-Host "'UOB\Domain Users' has been added to the 'Users' group." -ForegroundColor Green
+            } else {
+                Write-Host "Failed to add 'UOB\Domain Users' to the 'Users' group." -ForegroundColor Red
+            }
+        }
+        catch {
+            Write-Host "Could not add 'UOB\Domain Users' to 'Users' group (it may not exist): $_" -ForegroundColor Yellow
+        }
+
     }
     catch {
         Write-Host "Error adding default system accounts to 'Users' group: $_" -ForegroundColor Red
